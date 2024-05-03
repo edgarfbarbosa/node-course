@@ -1,4 +1,4 @@
-// const fs = require('fs')
+const fs = require('fs')
 const http = require('http')
 const url = require('url')
 
@@ -26,6 +26,11 @@ const url = require('url')
 //   })
 // })
 
+// Lê o conteúdo do arquivo JSON de forma síncrona e o converte em uma string.
+const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, 'utf-8')
+// Converte a string JSON em um objeto JavaScript.
+const dataObj = JSON.parse(data)
+
 /**
 * Cria um servidor HTTP.
 * @param {http.IncomingMessage} req - Objeto de solicitação HTTP.
@@ -36,8 +41,18 @@ const server = http.createServer((req, res) => {
   
   if (pathName === '/' || pathName === '/overview') {
     res.end('This is OVERVIEW')
-  } else if (pathName == '/product') {
+  } else if (pathName === '/product') {
     res.end('This is the PRODUCT')
+  } else if (pathName === '/api') {
+    /**
+    * Define o header de resposta para indicar que o conteúdo é JSON e envia os dados JSON.
+    * @param {number} 200 - Código de status HTTP 200 (OK).
+    * @param {Object} {'Content-Type': 'application/json'} - O header de resposta com o tipo de conteúdo.
+    */
+    res.writeHead(200, {
+      'Content-Type': 'application/json'
+    })
+    res.end(data)
   } else {
     res.writeHead(404, {
       'Content-type': 'text/html',

@@ -1,5 +1,6 @@
 const fs = require('fs')
 const http = require('http')
+const path = require('path')
 const url = require('url')
 
 /**
@@ -66,9 +67,11 @@ const replaceTemplate = (template, product) => {
 * @param {http.ServerResponse} res - Objeto de resposta HTTP.
 */
 const server = http.createServer((req, res) => {
-  const pathName = req.url // Atribui o caminho da URL da solicitação HTTP para uma constante.
+  // Atribui o caminho da URL da solicitação HTTP para uma constante.
+  // Desestrutura a URL da solicitação para obter o objeto query e pathname.
+  const { query, pathname } = url.parse(req.url, true)
   
-  if (pathName === '/' || pathName === '/overview') {
+  if (pathname === '/' || pathname === '/overview') {
     // Overview page
     // Status e o tipo de conteúdo da resposta
     res.writeHead(200, {
@@ -80,10 +83,16 @@ const server = http.createServer((req, res) => {
     const output = tempOverview.replace('{%PRODUCT_CARDS%}', cardsHtml)
     // Retorna a resposta com o HTML da página de visão geral.
     res.end(output)
-  } else if (pathName === '/product') {
+  } else if (pathname === '/product') {
     // Product page
-    res.end('This is the PRODUCT')
-  } else if (pathName === '/api') {
+    res.writeHead(200, {
+      'Content-Type': 'text/html'
+    })
+    // Obtém o produto correspondente ao ID da query.
+    const product = dataObj[query.id]
+    const output = replaceTemplate(tempProduct, product)
+    res.end(output)
+  } else if (pathname === '/api') {
     /**
     * Define o header de resposta para indicar que o conteúdo é JSON e envia os dados JSON.
     * @param {number} 200 - Código de status HTTP 200 (OK).
